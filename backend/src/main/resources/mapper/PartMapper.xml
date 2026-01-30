@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.korit.project.backend.mapper.PartMapper">
+    
+    <insert id="insertPart" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO parts (cad_file_id, name, position_x, position_y, position_z, size_x, size_y, size_z)
+        VALUES (#{cadFileId}, #{name}, #{positionX}, #{positionY}, #{positionZ}, #{sizeX}, #{sizeY}, #{sizeZ})
+    </insert>
+    
+    <select id="findById" resultType="com.korit.project.backend.entity.Part">
+        SELECT * FROM parts WHERE id = #{id}
+    </select>
+    
+    <select id="findByCadFileId" resultType="com.korit.project.backend.entity.Part">
+        SELECT * FROM parts WHERE cad_file_id = #{cadFileId}
+    </select>
+    
+</mapper>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.korit.project.backend.mapper.PartNoteMapper">
+    
+    <insert id="insertOrUpdateNote">
+        INSERT INTO part_notes (part_id, note)
+        VALUES (#{partId}, #{note})
+        ON DUPLICATE KEY UPDATE
+            note = #{note},
+            updated_at = CURRENT_TIMESTAMP
+    </insert>
+    
+    <select id="findByPartId" resultType="com.korit.project.backend.entity.PartNote">
+        SELECT * FROM part_notes WHERE part_id = #{partId}
+    </select>
+    
+    <delete id="deleteByPartId">
+        DELETE FROM part_notes WHERE part_id = #{partId}
+    </delete>
+    
+</mapper>

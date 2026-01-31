@@ -6,6 +6,7 @@ import lombok.Data;
 public class PartResponse {
     private Long id;
     private String name;
+    private String displayName;
     private Double positionX;
     private Double positionY;
     private Double positionZ;

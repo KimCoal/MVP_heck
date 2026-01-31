@@ -1,1 +1,2 @@
 trimesh>=3.23.0
+pygltflib>=1.16.0

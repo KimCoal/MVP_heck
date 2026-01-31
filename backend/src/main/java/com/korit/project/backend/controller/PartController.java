@@ -1,6 +1,7 @@
 package com.korit.project.backend.controller;
 
 import com.korit.project.backend.dto.NoteRequest;
+import com.korit.project.backend.dto.PartRenameRequest;
 import com.korit.project.backend.dto.PartResponse;
 import com.korit.project.backend.service.CadFileService;
 import lombok.RequiredArgsConstructor;
@@ -42,4 +43,15 @@ public class PartController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PatchMapping("/{id}/display-name")
+    public ResponseEntity<Void> renamePart(@PathVariable Long id,
+                                           @RequestBody PartRenameRequest request) {
+        if (request == null || request.getDisplayName() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        cadFileService.renamePart(id, request.getDisplayName());
+        return ResponseEntity.ok().build();
+    }
+
 }

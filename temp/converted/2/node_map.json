@@ -1,0 +1,380 @@
+[
+  {
+    "partKey": "fc:Part__Feature",
+    "nodeName": "fc:Part__Feature",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature.stl",
+    "position": [
+      6.673270630405547,
+      16.81775690186513,
+      27.783227678176537
+    ],
+    "size": [
+      22.5,
+      10.3,
+      12.2
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature001",
+    "nodeName": "fc:Part__Feature001",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea001",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature001.stl",
+    "position": [
+      6.673270630405545,
+      16.46775690186513,
+      33.933227678176536
+    ],
+    "size": [
+      17.000000000000004,
+      13.0,
+      0.10000000000000142
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature002",
+    "nodeName": "fc:Part__Feature002",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea002",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature002.stl",
+    "position": [
+      6.673270630403968,
+      16.46775690186513,
+      21.63322767817654
+    ],
+    "size": [
+      17.000000000000032,
+      13.0,
+      0.10000000000436415
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature003",
+    "nodeName": "fc:Part__Feature003",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea003",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature003.stl",
+    "position": [
+      -3.226729369594456,
+      6.767756901864704,
+      32.13322767817654
+    ],
+    "size": [
+      1.932409283016698,
+      1.0000000000008562,
+      1.9483059605263122
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature004",
+    "nodeName": "fc:Part__Feature004",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea004",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature004.stl",
+    "position": [
+      16.57327063040555,
+      6.767756901864704,
+      32.13322767817654
+    ],
+    "size": [
+      1.932409283016698,
+      1.0000000000008562,
+      1.9483059605263122
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature005",
+    "nodeName": "fc:Part__Feature005",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea005",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature005.stl",
+    "position": [
+      16.57327063040555,
+      6.767756901864704,
+      23.433227678176543
+    ],
+    "size": [
+      1.932409283016698,
+      1.0000000000008562,
+      1.9483059605263122
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature006",
+    "nodeName": "fc:Part__Feature006",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea006",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature006.stl",
+    "position": [
+      -3.226729369594456,
+      6.767756901864704,
+      23.433227678176543
+    ],
+    "size": [
+      1.932409283016698,
+      1.0000000000008562,
+      1.9483059605263122
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature007",
+    "nodeName": "fc:Part__Feature007",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea007",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature007.stl",
+    "position": [
+      6.673270630405546,
+      8.917756901865129,
+      27.78322767817654
+    ],
+    "size": [
+      22.64006674049707,
+      5.5000000000000036,
+      12.340066740497072
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature008",
+    "nodeName": "fc:Part__Feature008",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea008",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature008.stl",
+    "position": [
+      -4.076729369594453,
+      11.16775690186513,
+      26.78322767817654
+    ],
+    "size": [
+      2.9999999999999982,
+      1.0000000000000036,
+      1.0
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature009",
+    "nodeName": "fc:Part__Feature009",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea009",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature009.stl",
+    "position": [
+      -4.076729369594453,
+      11.16775690186513,
+      27.783227678176537
+    ],
+    "size": [
+      2.9999999999999982,
+      1.0000000000000036,
+      1.0
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature010",
+    "nodeName": "fc:Part__Feature010",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea010",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature010.stl",
+    "position": [
+      -4.076729369594453,
+      11.16775690186513,
+      28.78322767817654
+    ],
+    "size": [
+      2.9999999999999982,
+      1.0000000000000036,
+      1.0
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature011",
+    "nodeName": "fc:Part__Feature011",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea011",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature011.stl",
+    "position": [
+      6.6732706304055505,
+      27.492756901865132,
+      27.78322767817654
+    ],
+    "size": [
+      32.10000000000001,
+      11.050000000000004,
+      13.205184843567203
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature012",
+    "nodeName": "fc:Part__Feature012",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a/SG90 - Micro Servo 9g - Tower Pro.1_Pea012",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature012.stl",
+    "position": [
+      1.523270630405546,
+      32.442756901865124,
+      27.78322767817654
+    ],
+    "size": [
+      4.900000000000002,
+      7.350000000000001,
+      4.899999999999999
+    ]
+  },
+  {
+    "partKey": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodeName": "fc:SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro/SG90 - Micro Servo 9g - Tower Pro.1_Pea013",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__SG90___Micro_Servo_9g___Tower_Pro_1_Pe__a.stl",
+    "position": [
+      6.6732706304055505,
+      21.142756901865127,
+      27.78322767817545
+    ],
+    "size": [
+      32.10000000000001,
+      29.95,
+      12.400000000002183
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature013",
+    "nodeName": "fc:Part__Feature013",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro/SG90 - Micro Servo 9g - Tower Pro.2_Pea",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature013.stl",
+    "position": [
+      -4.776729369594454,
+      36.01775690186511,
+      27.78322767817654
+    ],
+    "size": [
+      19.499999999999996,
+      3.8000000000000043,
+      6.899999999999999
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature014",
+    "nodeName": "fc:Part__Feature014",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro/SG90 - Micro Servo 9g - Tower Pro.3_Pea",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature014.stl",
+    "position": [
+      1.5232706304055466,
+      36.01775690186511,
+      27.78322767817654
+    ],
+    "size": [
+      32.099999999999994,
+      3.8000000000000043,
+      6.899999999999999
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature015",
+    "nodeName": "fc:Part__Feature015",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro/SG90 - Micro Servo 9g - Tower Pro.4_Pea",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature015.stl",
+    "position": [
+      2.723270630405551,
+      36.01775690186511,
+      27.783227678176537
+    ],
+    "size": [
+      34.50000000000001,
+      3.8000000000000043,
+      16.7
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature016",
+    "nodeName": "fc:Part__Feature016",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro/SG90 - Micro Servo 9g - Tower Pro.5_BS EN ISO 7045 - M2 x 8 - Z - 8S",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature016.stl",
+    "position": [
+      20.573270630405545,
+      21.26775690186513,
+      27.78322767817654
+    ],
+    "size": [
+      4.799999999999997,
+      9.600000000000001,
+      4.800000000000004
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature017",
+    "nodeName": "fc:Part__Feature017",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro/SG90 - Micro Servo 9g - Tower Pro.5_BS EN ISO 7045 - M2 x 8 - Z - 8S001",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature017.stl",
+    "position": [
+      -7.226729369594452,
+      21.25239616631933,
+      27.78322767817654
+    ],
+    "size": [
+      4.6796539784727536,
+      9.569278528908395,
+      4.800000000000004
+    ]
+  },
+  {
+    "partKey": "fc:Part__Feature018",
+    "nodeName": "fc:Part__Feature018",
+    "nodePath": "Root/SG90___Micro_Servo_9g___Tower_Pro/SG90 - Micro Servo 9g - Tower Pro.6_BS EN ISO 7045 - M2 x 4 - Z - 4S",
+    "parentKey": "fc:SG90___Micro_Servo_9g___Tower_Pro",
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__Part__Feature018.stl",
+    "position": [
+      1.523270630405546,
+      35.567756901865124,
+      27.78322767817654
+    ],
+    "size": [
+      3.3554158209064213,
+      5.299999999999997,
+      3.3554158209064227
+    ]
+  },
+  {
+    "partKey": "fc:SG90___Micro_Servo_9g___Tower_Pro",
+    "nodeName": "fc:SG90___Micro_Servo_9g___Tower_Pro",
+    "nodePath": "Root/SG90 - Micro Servo 9g - Tower Pro",
+    "parentKey": null,
+    "nodeIndex": null,
+    "meshPath": "E:/IT/404founders/MVP_heck/temp/parts/2/fc__SG90___Micro_Servo_9g___Tower_Pro.stl",
+    "position": [
+      4.216550589959557,
+      22.182459114826024,
+      27.78322767817654
+    ],
+    "size": [
+      37.393094059364735,
+      32.0294044259218,
+      16.699999999999996
+    ]
+  }
+]

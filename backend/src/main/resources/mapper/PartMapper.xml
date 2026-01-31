@@ -2,18 +2,95 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.korit.project.backend.mapper.PartMapper">
-    
+
     <insert id="insertPart" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO parts (cad_file_id, name, position_x, position_y, position_z, size_x, size_y, size_z)
-        VALUES (#{cadFileId}, #{name}, #{positionX}, #{positionY}, #{positionZ}, #{sizeX}, #{sizeY}, #{sizeZ})
+        INSERT INTO parts (
+            cad_file_id,
+            name,
+            display_name,
+            part_key,
+            node_index,
+            node_path,
+            parent_part_id,
+            position_x, position_y, position_z,
+            size_x, size_y, size_z
+        )
+        VALUES (
+                   #{cadFileId},
+                   #{name},
+                   #{displayName},
+                   #{partKey},
+                   #{nodeIndex},
+                   #{nodePath},
+                   #{parentPartId},
+                   #{positionX}, #{positionY}, #{positionZ},
+                   #{sizeX}, #{sizeY}, #{sizeZ}
+               )
     </insert>
-    
+
+    <delete id="deleteByCadFileId">
+        DELETE FROM parts WHERE cad_file_id = #{cadFileId}
+    </delete>
+
     <select id="findById" resultType="com.korit.project.backend.entity.Part">
-        SELECT * FROM parts WHERE id = #{id}
+        SELECT
+            id,
+            cad_file_id   AS cadFileId,
+            name,
+            display_name AS displayName,
+            part_key      AS partKey,
+            node_index    AS nodeIndex,
+            node_path     AS nodePath,
+            parent_part_id AS parentPartId,
+            position_x    AS positionX,
+            position_y    AS positionY,
+            position_z    AS positionZ,
+            size_x        AS sizeX,
+            size_y        AS sizeY,
+            size_z        AS sizeZ
+        FROM parts
+        WHERE id = #{id}
     </select>
-    
+
     <select id="findByCadFileId" resultType="com.korit.project.backend.entity.Part">
-        SELECT * FROM parts WHERE cad_file_id = #{cadFileId}
+        SELECT
+            id,
+            cad_file_id   AS cadFileId,
+            name,
+            display_name AS displayName,
+            part_key      AS partKey,
+            node_index    AS nodeIndex,
+            node_path     AS nodePath,
+            parent_part_id AS parentPartId,
+            position_x    AS positionX,
+            position_y    AS positionY,
+            position_z    AS positionZ,
+            size_x        AS sizeX,
+            size_y        AS sizeY,
+            size_z        AS sizeZ
+        FROM parts
+        WHERE cad_file_id = #{cadFileId}
+        ORDER BY id ASC
     </select>
-    
+
+
+    <update id="updateDisplayNameById">
+        UPDATE parts
+        SET display_name = #{displayName}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateDisplayNameByCadFileIdAndPartKey">
+        UPDATE parts
+        SET display_name = #{displayName}
+        WHERE cad_file_id = #{cadFileId}
+          AND part_key = #{partKey}
+    </update>
+
+    <update id="updateNodeIndexByCadFileIdAndPartKey">
+        update parts
+        set node_index = #{nodeIndex}
+        where cad_file_id = #{cadFileId}
+          and part_key = #{partKey}
+    </update>
 </mapper>

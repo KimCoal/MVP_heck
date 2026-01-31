@@ -42,15 +42,25 @@ public class CadFileService {
 
     @Transactional
     public CadFileResponse uploadCadFile(MultipartFile file) throws IOException {
-        // 파일 확장자 검증 (STL, OBJ, PLY만 허용)
+        // 파일 확장자 검증 (STL, OBJ, PLY, STEP, STP, IGES 허용)
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null) {
             throw new IllegalArgumentException("파일명이 없습니다.");
         }
 
         String extension = originalFilename.substring(originalFilename.lastIndexOf('.') + 1).toLowerCase();
-        if (!extension.equals("stl") && !extension.equals("obj") && !extension.equals("ply")) {
-            throw new IllegalArgumentException("STL, OBJ, PLY 파일만 업로드 가능합니다.");
+
+        boolean allowed =
+                extension.equals("stl") ||
+                        extension.equals("obj") ||
+                        extension.equals("ply") ||
+                        extension.equals("step") ||
+                        extension.equals("stp") ||
+                        extension.equals("igs") ||
+                        extension.equals("iges");
+
+        if (!allowed) {
+            throw new IllegalArgumentException("STL, OBJ, PLY, STEP, STP, IGES 파일만 업로드 가능합니다.");
         }
 
         // 임시 디렉토리 생성 (절대 경로로 변환)
@@ -155,6 +165,7 @@ public class CadFileService {
         PartResponse response = new PartResponse();
         response.setId(part.getId());
         response.setName(part.getName());
+        response.setDisplayName(part.getDisplayName());
         response.setPositionX(part.getPositionX());
         response.setPositionY(part.getPositionY());
         response.setPositionZ(part.getPositionZ());
@@ -202,4 +213,15 @@ public class CadFileService {
         
         return response;
     }
+
+    @Transactional
+    public void renamePart(Long partId, String displayName) {
+        partMapper.updateDisplayNameById(partId, displayName);
+    }
+
+    @Transactional
+    public void renamePartByKey(Long cadFileId, String partKey, String displayName) {
+        partMapper.updateDisplayNameByCadFileIdAndPartKey(cadFileId, partKey, displayName);
+    }
+
 }

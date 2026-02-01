@@ -10,16 +10,26 @@ import java.util.List;
 public interface PartMapper {
     void insertPart(Part part);
 
-    int deleteByCadFileId(Long cadFileId);
+    int deleteByCadFileId(@Param("cadFileId") Long cadFileId);
 
-    Part findById(Long id);
+    Part findById(@Param("id") Long id);
 
-    List<Part> findByCadFileId(Long cadFileId);
+    List<Part> findByCadFileId(@Param("cadFileId") Long cadFileId);
 
-    void updateDisplayNameById(Long id, String displayName);
+    void updateDisplayNameById(
+            @Param("id") Long id,
+            @Param("displayName") String displayName
+    );
 
-    void updateDisplayNameByCadFileIdAndPartKey(Long cadFileId, String partKey, String displayName);
+    void updateDisplayNameByCadFileIdAndPartKey(
+            @Param("cadFileId") Long cadFileId,
+            @Param("partKey") String partKey,
+            @Param("displayName") String displayName
+    );
 
-    int updateNodeIndexByCadFileIdAndPartKey(Long cadFileId, String partKey, Integer nodeIndex);
-
+    int updateNodeIndexByCadFileIdAndPartKey(
+            @Param("cadFileId") Long cadFileId,
+            @Param("partKey") String partKey,
+            @Param("nodeIndex") Integer nodeIndex
+    );
 }

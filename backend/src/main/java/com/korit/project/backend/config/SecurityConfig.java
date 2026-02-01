@@ -15,6 +15,14 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                // ✅ Swagger/OpenAPI 먼저 명시
+                .requestMatchers(
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**"
+                ).permitAll()
+
+                // ✅ 현재는 전체 오픈(추후 인증 붙일 때 여기만 바꾸면 됨)
                 .anyRequest().permitAll()
             );
         return http.build();

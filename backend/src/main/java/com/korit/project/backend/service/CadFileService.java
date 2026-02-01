@@ -1,14 +1,10 @@
 package com.korit.project.backend.service;
 
 import com.korit.project.backend.dto.CadFileResponse;
-import com.korit.project.backend.dto.NoteRequest;
 import com.korit.project.backend.dto.PartResponse;
+import com.korit.project.backend.dto.resp.ApiRespDto;
 import com.korit.project.backend.entity.CadFile;
-import com.korit.project.backend.entity.Part;
-import com.korit.project.backend.entity.PartNote;
 import com.korit.project.backend.mapper.CadFileMapper;
-import com.korit.project.backend.mapper.PartMapper;
-import com.korit.project.backend.mapper.PartNoteMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,9 +25,8 @@ import java.util.stream.Collectors;
 public class CadFileService {
 
     private final CadFileMapper cadFileMapper;
-    private final PartMapper partMapper;
-    private final PartNoteMapper partNoteMapper;
     private final PythonWorkerService pythonWorkerService;
+    private final PartService partService;
 
     @Value("${file.upload.temp-dir}")
     private String tempDir;
@@ -41,86 +35,73 @@ public class CadFileService {
     private String convertedDir;
 
     @Transactional
-    public CadFileResponse uploadCadFile(MultipartFile file) throws IOException {
-        // 파일 확장자 검증 (STL, OBJ, PLY, STEP, STP, IGES 허용)
-        String originalFilename = file.getOriginalFilename();
-        if (originalFilename == null) {
-            throw new IllegalArgumentException("파일명이 없습니다.");
-        }
-
-        String extension = originalFilename.substring(originalFilename.lastIndexOf('.') + 1).toLowerCase();
-
-        boolean allowed =
-                extension.equals("stl") ||
-                        extension.equals("obj") ||
-                        extension.equals("ply") ||
-                        extension.equals("step") ||
-                        extension.equals("stp") ||
-                        extension.equals("igs") ||
-                        extension.equals("iges");
-
-        if (!allowed) {
-            throw new IllegalArgumentException("STL, OBJ, PLY, STEP, STP, IGES 파일만 업로드 가능합니다.");
-        }
-
-        // 임시 디렉토리 생성 (절대 경로로 변환)
-        Path tempPath;
-        if (Paths.get(tempDir).isAbsolute()) {
-            tempPath = Paths.get(tempDir);
-        } else {
-            // 상대 경로인 경우 프로젝트 루트 기준으로 변환
-            String userDir = System.getProperty("user.dir");
-            tempPath = Paths.get(userDir, tempDir);
-        }
-        Files.createDirectories(tempPath);
-        log.info("임시 디렉토리: {}", tempPath.toAbsolutePath());
-
-        // 임시 파일 저장
-        String tempFileName = System.currentTimeMillis() + "_" + originalFilename;
-        Path tempFilePath = tempPath.resolve(tempFileName);
-        file.transferTo(tempFilePath.toFile());
-
-        // 파일이 실제로 저장되었는지 확인
-        if (!Files.exists(tempFilePath)) {
-            throw new IOException("파일 저장에 실패했습니다: " + tempFilePath);
-        }
-        log.info("파일 저장 완료: {}", tempFilePath.toAbsolutePath());
-
-        // DB에 파일 정보 저장
-        CadFile cadFile = new CadFile();
-        cadFile.setOriginalFilename(originalFilename);
-        cadFile.setFileSize(file.getSize());
-        cadFile.setStatus("UPLOADING");
-        cadFileMapper.insertCadFile(cadFile);
-
-        Long cadFileId = cadFile.getId();
-        log.info("CAD 파일 업로드 완료: ID={}, 파일명={}, 경로={}", cadFileId, originalFilename, tempFilePath.toAbsolutePath());
-
-        // Python Worker 호출 (비동기) - 절대 경로 전달
+    public ApiRespDto<CadFileResponse> uploadCadFile(MultipartFile file) {
         try {
-            pythonWorkerService.processCadFile(cadFileId, tempFilePath.toAbsolutePath().toString(), originalFilename);
-        } catch (Exception e) {
-            log.error("Python Worker 호출 실패", e);
-            cadFileMapper.updateStatus(cadFileId, "FAILED");
-            throw new RuntimeException("파일 처리 중 오류가 발생했습니다.", e);
-        }
+            if (file == null || file.isEmpty()) {
+                return new ApiRespDto<>("failed", "파일이 비어있습니다.", null);
+            }
 
-        return convertToResponse(cadFile);
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null) {
+                return new ApiRespDto<>("failed", "파일명이 없습니다.", null);
+            }
+
+            String extension = originalFilename.substring(originalFilename.lastIndexOf('.') + 1).toLowerCase();
+            boolean allowed = extension.equals("stl") || extension.equals("obj") || extension.equals("ply") ||
+                    extension.equals("step") || extension.equals("stp") || extension.equals("igs") || extension.equals("iges");
+
+            if (!allowed) {
+                return new ApiRespDto<>("failed", "STL, OBJ, PLY, STEP, STP, IGES 파일만 업로드 가능합니다.", null);
+            }
+
+            Path tempPath = resolvePath(tempDir);
+            Files.createDirectories(tempPath);
+
+            String tempFileName = System.currentTimeMillis() + "_" + originalFilename;
+            Path tempFilePath = tempPath.resolve(tempFileName);
+            file.transferTo(tempFilePath.toFile());
+
+            if (!Files.exists(tempFilePath)) {
+                return new ApiRespDto<>("failed", "파일 저장에 실패했습니다.", null);
+            }
+
+            CadFile cadFile = new CadFile();
+            cadFile.setOriginalFilename(originalFilename);
+            cadFile.setFileSize(file.getSize());
+            cadFile.setStatus("UPLOADING");
+            cadFileMapper.insertCadFile(cadFile);
+
+            Long cadFileId = cadFile.getId();
+            pythonWorkerService.processCadFile(cadFileId, tempFilePath.toAbsolutePath().toString(), originalFilename);
+
+            CadFileResponse response = convertToResponse(cadFile);
+            return new ApiRespDto<>("success", "파일 업로드가 완료되었습니다.", response);
+        } catch (Exception e) {
+            log.error("파일 업로드 실패", e);
+            return new ApiRespDto<>("failed", "파일 업로드 중 오류가 발생했습니다: " + e.getMessage(), null);
+        }
     }
 
-    public List<CadFileResponse> getAllCadFiles() {
-        return cadFileMapper.findAll().stream()
+    public ApiRespDto<List<CadFileResponse>> getAllCadFiles() {
+        List<CadFileResponse> files = cadFileMapper.findAll().stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
+        return new ApiRespDto<>("success", "파일 목록 조회가 완료되었습니다.", files);
     }
 
-    public CadFileResponse getCadFileById(Long id) {
+    public ApiRespDto<CadFileResponse> getCadFileById(Long id) {
         CadFile cadFile = cadFileMapper.findById(id);
         if (cadFile == null) {
-            throw new IllegalArgumentException("파일을 찾을 수 없습니다: ID=" + id);
+            return new ApiRespDto<>("failed", "파일을 찾을 수 없습니다: ID=" + id, null);
         }
-        log.info("파일 조회: ID={}, glbFilePath={}", id, cadFile.getGlbFilePath());
-        return convertToResponse(cadFile);
+
+        CadFileResponse response = convertToResponse(cadFile);
+        ApiRespDto<List<PartResponse>> partsResult = partService.getPartsByCadFileId(id);
+        if ("success".equals(partsResult.getStatus()) && partsResult.getData() != null) {
+            response.setParts(partsResult.getData());
+        }
+
+        return new ApiRespDto<>("success", "파일 조회가 완료되었습니다.", response);
     }
 
     public File getGlbFile(Long id) {
@@ -131,92 +112,12 @@ public class CadFileService {
         return new File(cadFile.getGlbFilePath());
     }
 
-    public List<PartResponse> getPartsByCadFileId(Long cadFileId) {
-        List<Part> parts = partMapper.findByCadFileId(cadFileId);
-        return parts.stream()
-                .map(part -> {
-                    PartResponse response = new PartResponse();
-                    response.setId(part.getId());
-                    response.setName(part.getName());
-
-                    // ✅ displayName 정책:
-                    // - DB display_name이 있으면 그걸 우선 사용
-                    // - 없으면 최초 표시는 name으로
-                    String resolvedDisplayName =
-                            (part.getDisplayName() != null && !part.getDisplayName().isBlank())
-                                    ? part.getDisplayName()
-                                    : part.getName();
-                    response.setDisplayName(resolvedDisplayName);
-
-                    // ✅ 추가: node 매핑 필드 내려주기
-                    response.setPartKey(part.getPartKey());
-                    response.setNodeIndex(part.getNodeIndex());
-
-                    response.setPositionX(part.getPositionX());
-                    response.setPositionY(part.getPositionY());
-                    response.setPositionZ(part.getPositionZ());
-                    response.setSizeX(part.getSizeX());
-                    response.setSizeY(part.getSizeY());
-                    response.setSizeZ(part.getSizeZ());
-
-                    // 메모 조회
-                    PartNote note = partNoteMapper.findByPartId(part.getId());
-                    if (note != null) {
-                        response.setNote(note.getNote());
-                    }
-
-                    return response;
-                })
-                .collect(Collectors.toList());
-    }
-
-    public PartResponse getPartById(Long partId) {
-        Part part = partMapper.findById(partId);
-        if (part == null) {
-            throw new IllegalArgumentException("부품을 찾을 수 없습니다: ID=" + partId);
+    private Path resolvePath(String dir) {
+        if (Paths.get(dir).isAbsolute()) {
+            return Paths.get(dir);
         }
-
-        PartResponse response = new PartResponse();
-        response.setId(part.getId());
-        response.setName(part.getName());
-
-        // ✅ displayName 정책 동일 적용
-        String resolvedDisplayName =
-                (part.getDisplayName() != null && !part.getDisplayName().isBlank())
-                        ? part.getDisplayName()
-                        : part.getName();
-        response.setDisplayName(resolvedDisplayName);
-
-        // ✅ 추가: node 매핑 필드 내려주기
-        response.setPartKey(part.getPartKey());
-        response.setNodeIndex(part.getNodeIndex());
-
-        response.setPositionX(part.getPositionX());
-        response.setPositionY(part.getPositionY());
-        response.setPositionZ(part.getPositionZ());
-        response.setSizeX(part.getSizeX());
-        response.setSizeY(part.getSizeY());
-        response.setSizeZ(part.getSizeZ());
-
-        PartNote note = partNoteMapper.findByPartId(partId);
-        if (note != null) {
-            response.setNote(note.getNote());
-        }
-
-        return response;
-    }
-
-    @Transactional
-    public void saveOrUpdateNote(Long partId, NoteRequest request) {
-        PartNote note = new PartNote();
-        note.setPartId(partId);
-        note.setNote(request.getNote());
-        partNoteMapper.insertOrUpdateNote(note);
-    }
-
-    @Transactional
-    public void deleteNote(Long partId) {
-        partNoteMapper.deleteByPartId(partId);
+        String userDir = System.getProperty("user.dir");
+        return Paths.get(userDir, dir);
     }
 
     private CadFileResponse convertToResponse(CadFile cadFile) {
@@ -227,26 +128,7 @@ public class CadFileService {
         response.setUploadedAt(cadFile.getUploadedAt());
         response.setFileSize(cadFile.getFileSize());
         response.setStatus(cadFile.getStatus());
-
-        log.debug("convertToResponse: ID={}, glbFilePath={}, status={}",
-                cadFile.getId(), cadFile.getGlbFilePath(), cadFile.getStatus());
-
-//        // 부품 목록 조회
-//        if (cadFile.getId() != null) {
-//            response.setParts(getPartsByCadFileId(cadFile.getId()));
-//        }
-
         return response;
-    }
-
-    @Transactional
-    public void renamePart(Long partId, String displayName) {
-        partMapper.updateDisplayNameById(partId, displayName);
-    }
-
-    @Transactional
-    public void renamePartByKey(Long cadFileId, String partKey, String displayName) {
-        partMapper.updateDisplayNameByCadFileIdAndPartKey(cadFileId, partKey, displayName);
     }
 
 }

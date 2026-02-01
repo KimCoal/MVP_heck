@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getPartById, savePartNote, deletePartNote } from '../services/api'
+import { getPartById, savePartNote, deletePartNote } from '../api/partApi'
 
 function PartDetail({ part: initialPart, onUpdate }) {
   const [part, setPart] = useState(initialPart)

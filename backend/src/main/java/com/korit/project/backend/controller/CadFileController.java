@@ -1,7 +1,6 @@
 package com.korit.project.backend.controller;
 
-import com.korit.project.backend.dto.CadFileResponse;
-import com.korit.project.backend.dto.PartResponse;
+import com.korit.project.backend.dto.resp.ApiRespDto;
 import com.korit.project.backend.service.CadFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
@@ -13,8 +12,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.List;
 
+/**
+ * CAD 파일 관리 Controller
+ */
 @RestController
 @RequestMapping("/api/cad")
 @RequiredArgsConstructor
@@ -22,60 +23,52 @@ public class CadFileController {
 
     private final CadFileService cadFileService;
 
+    /**
+     * CAD 파일 업로드
+     */
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadCadFile(@RequestParam("file") MultipartFile file) {
-        try {
-            if (file == null || file.isEmpty()) {
-                return ResponseEntity.badRequest().body("파일이 비어있습니다.");
-            }
-            
-            CadFileResponse response = cadFileService.uploadCadFile(file);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("파일 업로드 중 오류가 발생했습니다: " + e.getMessage());
+    public ResponseEntity<ApiRespDto<?>> uploadCadFile(@RequestParam("file") MultipartFile file) {
+        ApiRespDto<?> response = cadFileService.uploadCadFile(file);
+        if ("failed".equals(response.getStatus())) {
+            throw new RuntimeException(response.getMessage());
         }
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * 업로드된 파일 목록 조회
+     */
     @GetMapping("/files")
-    public ResponseEntity<List<CadFileResponse>> getAllCadFiles() {
+    public ResponseEntity<ApiRespDto<?>> getAllCadFiles() {
         return ResponseEntity.ok(cadFileService.getAllCadFiles());
     }
 
+    /**
+     * 파일 상세 조회 (부품 정보 포함)
+     */
     @GetMapping("/files/{id}")
-    public ResponseEntity<CadFileResponse> getCadFileById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(cadFileService.getCadFileById(id));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<ApiRespDto<?>> getCadFileById(@PathVariable Long id) {
+        ApiRespDto<?> response = cadFileService.getCadFileById(id);
+        if ("failed".equals(response.getStatus())) {
+            throw new RuntimeException(response.getMessage());
         }
+        return ResponseEntity.ok(response);
     }
 
+    /**
+     * GLB 파일 다운로드
+     */
     @GetMapping("/files/{id}/glb")
     public ResponseEntity<Resource> downloadGlbFile(@PathVariable Long id) {
-        try {
-            File glbFile = cadFileService.getGlbFile(id);
-            
-            // 파일이 실제로 존재하는지 확인
-            if (!glbFile.exists()) {
-                return ResponseEntity.notFound().build();
-            }
-            
-            Resource resource = new FileSystemResource(glbFile);
-            
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType("model/gltf-binary"))
-                    .header(HttpHeaders.CACHE_CONTROL, "no-cache")
-                    .body(resource);
-        } catch (IllegalArgumentException e) {
+        File glbFile = cadFileService.getGlbFile(id);
+        if (!glbFile.exists()) {
             return ResponseEntity.notFound().build();
         }
-    }
 
-    @GetMapping("/files/{id}/parts")
-    public ResponseEntity<List<PartResponse>> getPartsByCadFileId(@PathVariable Long id) {
-        return ResponseEntity.ok(cadFileService.getPartsByCadFileId(id));
+        Resource resource = new FileSystemResource(glbFile);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("model/gltf-binary"))
+                .header(HttpHeaders.CACHE_CONTROL, "no-cache")
+                .body(resource);
     }
 }

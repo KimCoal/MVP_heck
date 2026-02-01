@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState, useRef } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls, useGLTF, Grid } from '@react-three/drei'
-import { getGlbFileUrl } from '../services/api'
+import { getGlbFileUrl } from '../api/cadApi'
 import * as THREE from 'three'
 
 // 카메라 자동 조정 컴포넌트

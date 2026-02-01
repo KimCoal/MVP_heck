@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getCadFileById } from '../services/api'
+import { getCadFileById } from '../api/cadApi'
 
 function PartList({ cadFileId, parts: initialParts, onPartSelect, selectedPartId }) {
   const [parts, setParts] = useState(initialParts || [])

@@ -4,7 +4,7 @@ import FileUpload from './components/FileUpload'
 import ModelViewer from './components/ModelViewer'
 import PartList from './components/PartList'
 import PartDetail from './components/PartDetail'
-import { getCadFiles, uploadCadFile, getCadFileById } from './services/api'
+import { getCadFiles, uploadCadFile, getCadFileById } from './api/cadApi'
 
 function App() {
   const [cadFiles, setCadFiles] = useState([])
@@ -65,18 +65,15 @@ function App() {
       const uploadedFile = await uploadCadFile(file)
       await loadCadFiles()
       setSelectedFile(uploadedFile)
-      setLoading(false)
     } catch (error) {
-      console.error('파일 업로드 실패:', error)
+      alert(error.message || '파일 업로드에 실패했습니다.')
+    } finally {
       setLoading(false)
-      const errorMessage = error.response?.data || error.message || '파일 업로드에 실패했습니다.'
-      alert(`파일 업로드 실패: ${errorMessage}`)
     }
   }
 
   const handleFileSelect = async (file) => {
     try {
-      // 최신 파일 정보 가져오기
       const updatedFile = await getCadFileById(file.id)
       setSelectedFile(updatedFile)
       setSelectedPart(null)

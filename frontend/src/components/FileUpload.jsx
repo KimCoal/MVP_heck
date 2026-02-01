@@ -7,10 +7,11 @@ function FileUpload({ onUpload, loading }) {
     const file = e.target.files[0]
     if (file) {
       const extension = file.name.split('.').pop().toLowerCase()
-      if (['stl', 'obj', 'ply'].includes(extension)) {
+      const allowedExtensions = ['stl', 'obj', 'ply', 'step', 'stp', 'igs', 'iges']
+      if (allowedExtensions.includes(extension)) {
         onUpload(file)
       } else {
-        alert('STL, OBJ, PLY 파일만 업로드 가능합니다.')
+        alert('STL, OBJ, PLY, STEP, STP, IGES 파일만 업로드 가능합니다.')
       }
     }
     // 같은 파일을 다시 선택할 수 있도록 리셋
@@ -27,7 +28,7 @@ function FileUpload({ onUpload, loading }) {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".stl,.obj,.ply"
+        accept=".stl,.obj,.ply,.step,.stp,.igs,.iges"
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
@@ -38,7 +39,7 @@ function FileUpload({ onUpload, loading }) {
       >
         {loading ? '업로드 중...' : 'CAD 파일 선택'}
       </button>
-      <p className="upload-hint">STL, OBJ, PLY 파일만 지원</p>
+      <p className="upload-hint">STL, OBJ, PLY, STEP, STP, IGES 파일 지원</p>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
+"""\
 STEP/IGES Assembly -> Part meshes + metadata (MVP)
 
 - Load STEP/IGES with FreeCAD (headless via FreeCADCmd.exe)
@@ -14,28 +14,12 @@ STEP/IGES Assembly -> Part meshes + metadata (MVP)
   - By default: stdout
   - Optional: --json-out <path> to write a clean JSON file
 
-Usage:
-  step_to_parts.py <input_path> <output_dir>
-                  [--format stl|ply|obj]
-                  [--linear 10.0] [--angular 0.9] [--relative]
-                  [--max-parts 0]
-                  [--skip-small 0.0]
-                  [--skip-huge 1e50]
-                  [--skip-degenerate]
-                  [--exclude-keywords axis,plane,datum,origin,sketch,csys]
-                  [--no-name-filter]
-                  [--json-out <path>]
-                  [--no-hierarchy]
-                  [--quiet]
-
-Examples:
-  FreeCADCmd.exe -c "import runpy, sys; sys.argv=[r'step_to_parts.py',
-      r'E:/.../sample.step',
-      r'E:/.../temp/parts/999',
-      r'--format', r'stl',
-      r'--linear', r'10.0',
-      r'--json-out', r'E:/.../temp/parts/999/parts.json'
-  ]; runpy.run_path(r'E:/.../step_to_parts.py', run_name='__main__')"
+Why this file was patched:
+- Some STEP assemblies contain control characters (e.g. U+0087) in labels.
+- Those characters can be persisted into parts.json and later inserted into DB,
+  showing up as broken text like "Pea".
+- We now sanitize human-facing strings (name/nodePath segments/filenames) by
+  removing C0/C1 control chars and normalizing Unicode.
 """
 
 import sys
@@ -44,6 +28,8 @@ import json
 import argparse
 import traceback
 import math
+import re
+import unicodedata
 
 # FreeCAD modules (available only under FreeCADCmd environment)
 import FreeCAD as App
@@ -52,11 +38,42 @@ import MeshPart
 
 
 # ----------------------------
+# Text sanitation
+# ----------------------------
+# C0 controls + DEL + C1 controls
+_CTRL_RE = re.compile(r"[\x00-\x1F\x7F-\x9F]")
+
+
+def clean_text(s: str) -> str:
+    """Normalize unicode and remove control characters.
+
+    Notes:
+    - Keeps regular printable unicode (including Korean/Latin accents).
+    - Removes C0/C1 control chars that often appear as weird glyphs.
+    """
+    if s is None:
+        return ""
+    s = str(s)
+
+    # Normalize to a consistent form (helps with odd compatibility chars)
+    s = unicodedata.normalize("NFKC", s)
+
+    # Remove control chars
+    s = _CTRL_RE.sub("", s)
+
+    # Remove replacement character (optional safety)
+    s = s.replace("\uFFFD", "")
+
+    return s.strip()
+
+
+# ----------------------------
 # Helpers
 # ----------------------------
 
 def _safe_filename(name: str) -> str:
     # Windows-safe filename
+    name = clean_text(name)
     unsafe = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
     for ch in unsafe:
         name = name.replace(ch, "_")
@@ -64,10 +81,8 @@ def _safe_filename(name: str) -> str:
 
 
 def _safe_node_segment(name: str) -> str:
-    # nodePath safe segment (avoid slashes)
-    if name is None:
-        return "part"
-    name = str(name).strip()
+    # nodePath safe segment (avoid slashes + control chars)
+    name = clean_text(name)
     name = name.replace("\\", "_").replace("/", "_")
     return name or "part"
 
@@ -92,10 +107,7 @@ def _export_mesh_from_shape(
         angular_deflection: float,
         relative: bool = False,
 ):
-    """
-    Create mesh from FreeCAD shape and write to file.
-    Uses MeshPart.meshFromShape (more stable than Shape.tessellate signature differences).
-    """
+    """Create mesh from FreeCAD shape and write to file."""
     mesh = MeshPart.meshFromShape(
         Shape=shape,
         LinearDeflection=linear_deflection,
@@ -147,7 +159,7 @@ def _looks_like_reference(name: str, keywords) -> bool:
     """
     if not name:
         return False
-    n = str(name).lower()
+    n = clean_text(name).lower()
     return any(k in n for k in keywords)
 
 
@@ -184,19 +196,22 @@ def parse_args(argv):
     p.add_argument("output_dir", help="Directory to write per-part mesh files")
 
     p.add_argument("--format", default="stl", choices=["stl", "ply", "obj"], help="Mesh output format")
-    p.add_argument("--linear", type=float, default=10.0, help="LinearDeflection (bigger -> coarser, faster, smaller files)")
+    p.add_argument("--linear", type=float, default=10.0,
+                   help="LinearDeflection (bigger -> coarser, faster, smaller files)")
     p.add_argument("--angular", type=float, default=0.9, help="AngularDeflection (radians)")
     p.add_argument("--relative", action="store_true", help="Use Relative deflection (FreeCAD meshing)")
     p.add_argument("--max-parts", type=int, default=0, help="0 = unlimited; otherwise stop after N parts (MVP safety)")
 
     p.add_argument("--skip-small", type=float, default=0.0, help="Skip parts with bbox diagonal < value (0=off)")
-    p.add_argument("--skip-huge", type=float, default=1e50, help="Skip parts if any bbox axis >= value (filters axis/plane infinite boxes)")
+    p.add_argument("--skip-huge", type=float, default=1e50,
+                   help="Skip parts if any bbox axis >= value (filters axis/plane infinite boxes)")
     p.add_argument("--skip-degenerate", action="store_true", help="Skip degenerate bbox parts (axis-like thickness ~ 0)")
     p.add_argument("--exclude-keywords", default="axis,plane,datum,origin,sketch,csys",
                    help="Comma-separated keywords to filter by name/label (case-insensitive).")
     p.add_argument("--no-name-filter", action="store_true", help="Disable keyword-based name filtering")
 
-    p.add_argument("--json-out", default="", help="Write JSON metadata to this file path (optional). If empty, print to stdout.")
+    p.add_argument("--json-out", default="",
+                   help="Write JSON metadata to this file path (optional). If empty, print to stdout.")
     p.add_argument("--no-hierarchy", action="store_true", help="Do not attempt parent inference")
     p.add_argument("--quiet", action="store_true", help="Less stderr logs")
     return p.parse_args(argv)
@@ -253,7 +268,7 @@ def main():
 
             # compute bbox-based metrics for filters
             diag = (bb.DiagonalLength if hasattr(bb, "DiagonalLength")
-                    else (bb.XLength**2 + bb.YLength**2 + bb.ZLength**2) ** 0.5)
+                    else (bb.XLength ** 2 + bb.YLength ** 2 + bb.ZLength ** 2) ** 0.5)
 
             # small-part skip
             if skip_small > 0.0 and float(diag) < skip_small:
@@ -294,8 +309,9 @@ def main():
             # stable key: fc:<internal unique name>
             part_key = f"fc:{obj.Name}"
 
-            # human-facing name (can be renamed later via displayName in DB)
-            name = getattr(obj, "Label", None) or obj.Name
+            # human-facing name
+            raw_name = getattr(obj, "Label", None) or obj.Name
+            name = clean_text(raw_name)
             safe_name = _safe_node_segment(name)
 
             # nodePath / parentKey (best effort)
@@ -328,7 +344,7 @@ def main():
                 "meshPath": mesh_path.replace("\\", "/"),
                 "nodePath": node_path,
                 "parentKey": parent_key,
-                "nodeIndex": None,   # will be filled later when building GLB Scene (optional)
+                "nodeIndex": None,  # filled later when building GLB Scene (optional)
                 "position": [cx, cy, cz],
                 "size": [sx, sy, sz],
             })

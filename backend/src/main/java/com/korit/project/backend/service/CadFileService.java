@@ -79,7 +79,7 @@ public class CadFileService {
         String tempFileName = System.currentTimeMillis() + "_" + originalFilename;
         Path tempFilePath = tempPath.resolve(tempFileName);
         file.transferTo(tempFilePath.toFile());
-        
+
         // 파일이 실제로 저장되었는지 확인
         if (!Files.exists(tempFilePath)) {
             throw new IOException("파일 저장에 실패했습니다: " + tempFilePath);
@@ -138,19 +138,33 @@ public class CadFileService {
                     PartResponse response = new PartResponse();
                     response.setId(part.getId());
                     response.setName(part.getName());
+
+                    // ✅ displayName 정책:
+                    // - DB display_name이 있으면 그걸 우선 사용
+                    // - 없으면 최초 표시는 name으로
+                    String resolvedDisplayName =
+                            (part.getDisplayName() != null && !part.getDisplayName().isBlank())
+                                    ? part.getDisplayName()
+                                    : part.getName();
+                    response.setDisplayName(resolvedDisplayName);
+
+                    // ✅ 추가: node 매핑 필드 내려주기
+                    response.setPartKey(part.getPartKey());
+                    response.setNodeIndex(part.getNodeIndex());
+
                     response.setPositionX(part.getPositionX());
                     response.setPositionY(part.getPositionY());
                     response.setPositionZ(part.getPositionZ());
                     response.setSizeX(part.getSizeX());
                     response.setSizeY(part.getSizeY());
                     response.setSizeZ(part.getSizeZ());
-                    
+
                     // 메모 조회
                     PartNote note = partNoteMapper.findByPartId(part.getId());
                     if (note != null) {
                         response.setNote(note.getNote());
                     }
-                    
+
                     return response;
                 })
                 .collect(Collectors.toList());
@@ -161,23 +175,34 @@ public class CadFileService {
         if (part == null) {
             throw new IllegalArgumentException("부품을 찾을 수 없습니다: ID=" + partId);
         }
-        
+
         PartResponse response = new PartResponse();
         response.setId(part.getId());
         response.setName(part.getName());
-        response.setDisplayName(part.getDisplayName());
+
+        // ✅ displayName 정책 동일 적용
+        String resolvedDisplayName =
+                (part.getDisplayName() != null && !part.getDisplayName().isBlank())
+                        ? part.getDisplayName()
+                        : part.getName();
+        response.setDisplayName(resolvedDisplayName);
+
+        // ✅ 추가: node 매핑 필드 내려주기
+        response.setPartKey(part.getPartKey());
+        response.setNodeIndex(part.getNodeIndex());
+
         response.setPositionX(part.getPositionX());
         response.setPositionY(part.getPositionY());
         response.setPositionZ(part.getPositionZ());
         response.setSizeX(part.getSizeX());
         response.setSizeY(part.getSizeY());
         response.setSizeZ(part.getSizeZ());
-        
+
         PartNote note = partNoteMapper.findByPartId(partId);
         if (note != null) {
             response.setNote(note.getNote());
         }
-        
+
         return response;
     }
 
@@ -202,15 +227,15 @@ public class CadFileService {
         response.setUploadedAt(cadFile.getUploadedAt());
         response.setFileSize(cadFile.getFileSize());
         response.setStatus(cadFile.getStatus());
-        
-        log.debug("convertToResponse: ID={}, glbFilePath={}, status={}", 
-                 cadFile.getId(), cadFile.getGlbFilePath(), cadFile.getStatus());
-        
-        // 부품 목록 조회
-        if (cadFile.getId() != null) {
-            response.setParts(getPartsByCadFileId(cadFile.getId()));
-        }
-        
+
+        log.debug("convertToResponse: ID={}, glbFilePath={}, status={}",
+                cadFile.getId(), cadFile.getGlbFilePath(), cadFile.getStatus());
+
+//        // 부품 목록 조회
+//        if (cadFile.getId() != null) {
+//            response.setParts(getPartsByCadFileId(cadFile.getId()));
+//        }
+
         return response;
     }
 

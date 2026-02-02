@@ -9,23 +9,23 @@ function CameraController({ sceneRef }) {
     const { camera, size } = useThree()
     const controlsRef = useRef()
     const [initialized, setInitialized] = useState(false)
-    
+
     useEffect(() => {
         if (!sceneRef?.current || initialized) return
-        
+
         // 바운딩 박스 계산
         const box = new THREE.Box3().setFromObject(sceneRef.current)
         const center = box.getCenter(new THREE.Vector3())
         const boxSize = box.getSize(new THREE.Vector3())
-        
+
         // 가장 긴 축 찾기
         const maxDim = Math.max(boxSize.x, boxSize.y, boxSize.z)
         if (maxDim === 0) return
-        
+
         // 화면 비율 고려
         const aspect = size.width / size.height
         const fov = camera.fov * (Math.PI / 180)
-        
+
         // 카메라 거리 계산 (화면에 모델이 꽉 차도록)
         let distance
         if (aspect > 1) {
@@ -35,10 +35,10 @@ function CameraController({ sceneRef }) {
             // 세로가 더 긴 경우
             distance = Math.abs(maxDim / (2 * Math.tan(fov / 2) / aspect))
         }
-        
+
         // 여유 공간 추가 (10%)
         distance *= 1.1
-        
+
         // 카메라 위치 설정 (대각선 방향)
         const offset = distance * 0.8
         camera.position.set(
@@ -46,23 +46,23 @@ function CameraController({ sceneRef }) {
             center.y + offset,
             center.z + offset
         )
-        
+
         // 카메라가 모델 중심을 보도록 설정
         camera.lookAt(center)
         camera.updateProjectionMatrix()
-        
+
         // 컨트롤 타겟 설정
         if (controlsRef.current) {
             controlsRef.current.target.copy(center)
             controlsRef.current.update()
         }
-        
+
         setInitialized(true)
     }, [sceneRef, camera, size, initialized])
-    
-    return <OrbitControls 
+
+    return <OrbitControls
         ref={controlsRef}
-        enableDamping 
+        enableDamping
         dampingFactor={0.05}
         minDistance={0.1}
         maxDistance={10000}
@@ -86,11 +86,32 @@ function Model({ url, parts, onPartClick, selectedPartId, sceneRef }) {
         scene.traverse((child) => {
             if (child.isMesh) {
                 meshes.push(child)
-                child.material = new THREE.MeshStandardMaterial({
-                    color: '#4a4a4a',
-                    metalness: 0.2,
-                    roughness: 0.8,
-                })
+
+                // 원본 머티리얼과 색상 보존
+                if (!child.userData.originalMaterial) {
+                    // 원본 머티리얼 저장 (배열인 경우 처리)
+                    if (Array.isArray(child.material)) {
+                        child.userData.originalMaterial = child.material.map(mat => mat.clone())
+                        child.userData.originalColor = child.material.map(mat =>
+                            mat.color ? mat.color.clone() : new THREE.Color(0xffffff)
+                        )
+                    } else {
+                        child.userData.originalMaterial = child.material ? child.material.clone() : null
+                        child.userData.originalColor = child.material?.color
+                            ? child.material.color.clone()
+                            : new THREE.Color(0xffffff)
+                    }
+                }
+
+                // 원본 머티리얼이 있으면 그대로 사용, 없으면 기본 머티리얼 생성
+                if (!child.material) {
+                    child.material = new THREE.MeshStandardMaterial({
+                        color: child.userData.originalColor || '#ffffff',
+                        metalness: 0.2,
+                        roughness: 0.8,
+                    })
+                }
+
                 child.castShadow = true
                 child.receiveShadow = true
             }
@@ -146,32 +167,46 @@ function Model({ url, parts, onPartClick, selectedPartId, sceneRef }) {
 
         scene.traverse((child) => {
             if (child.isMesh && child.material) {
-                let color = '#4a4a4a'
+                // 머티리얼이 배열인 경우 처리
+                const materials = Array.isArray(child.material) ? child.material : [child.material]
+                const originalColors = Array.isArray(child.userData.originalColor)
+                    ? child.userData.originalColor
+                    : [child.userData.originalColor || new THREE.Color(0xffffff)]
 
-                // 선택된 부품 하이라이트
-                if (selectedPartId && parts) {
-                    const part = parts.find(p => p.id === selectedPartId)
-                    if (part && (child.name === part.name ||
-                        child.name.includes(part.name) ||
-                        part.name.includes(child.name))) {
-                        color = '#00ff00'
+                materials.forEach((material, index) => {
+                    if (!material || !material.color) return
+
+                    // 원본 색상 가져오기
+                    const originalColor = originalColors[index] ||
+                        (material.color ? material.color.clone() : new THREE.Color(0xffffff))
+
+                    let targetColor = originalColor.clone()
+
+                    // 선택된 부품 하이라이트
+                    if (selectedPartId && parts) {
+                        const part = parts.find(p => p.id === selectedPartId)
+                        if (part && (child.name === part.name ||
+                            child.name.includes(part.name) ||
+                            part.name.includes(child.name))) {
+                            // 원본 색상을 밝게 하여 하이라이트
+                            targetColor = originalColor.clone().lerp(new THREE.Color('#00ff00'), 0.5)
+                        }
                     }
-                }
 
-                // 호버 효과
-                if (hoveredMesh === child) {
-                    color = '#ff8800'
-                }
+                    // 호버 효과
+                    if (hoveredMesh === child) {
+                        // 원본 색상을 주황색으로 보간하여 하이라이트
+                        targetColor = originalColor.clone().lerp(new THREE.Color('#ff8800'), 0.4)
+                    }
 
-                if (child.material.color) {
-                    child.material.color.set(color)
-                }
+                    material.color.copy(targetColor)
+                })
             }
         })
     }, [scene, parts, selectedPartId, hoveredMesh])
 
     if (!scene) return null
-    
+
     return <primitive object={scene} />
 }
 
@@ -195,15 +230,15 @@ function ModelViewer({ cadFileId, parts, onPartClick, selectedPartId }) {
 
     return (
         <div className="model-viewer">
-            <Canvas 
+            <Canvas
                 shadows
                 gl={{ antialias: true }}
                 camera={{ fov: 50, near: 0.1, far: 10000 }}
             >
                 <color attach="background" args={['#f0f0f0']} />
-                <ambientLight intensity={0.8} />
-                <directionalLight position={[10, 10, 5]} intensity={1.2} castShadow />
-                <directionalLight position={[-10, -10, -5]} intensity={0.5} />
+                <ambientLight intensity={1.0} />
+                <directionalLight position={[10, 10, 5]} intensity={1.5} castShadow />
+                <directionalLight position={[-10, -10, -5]} intensity={0.8} />
                 <Suspense fallback={null}>
                     <Model
                         url={glbUrl}
